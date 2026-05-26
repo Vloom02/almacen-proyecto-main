@@ -1,0 +1,7 @@
+{
+  "name": "Almacen",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react-vite"
+}

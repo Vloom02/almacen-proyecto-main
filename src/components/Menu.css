@@ -1,0 +1,200 @@
+/* ────────────────────────────────────────────────────────────────────────────
+   BottomNav — barra inferior estilo POS, inspirada en el original
+   con indicador animado, badges, safe-area iOS/Android, y "pop" al activar.
+   ──────────────────────────────────────────────────────────────────────────── */
+
+.bottom-nav {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 100;
+  pointer-events: none;       /* el inner pill recibe los clicks */
+  padding: 0 8px;
+  /* safe-area para devices con gesture bar */
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+.bottom-nav__inner {
+  pointer-events: auto;
+  position: relative;
+  display: flex;
+  margin: 0 auto;
+  max-width: 520px;
+  height: var(--nav-h, 62px);
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  box-shadow:
+    0 -1px 0 rgba(0, 0, 0, 0.02),
+    0 -8px 24px -12px rgba(0, 0, 0, 0.08);
+}
+
+/* Indicador deslizante (pill detrás del tab activo) */
+.bottom-nav__indicator {
+  position: absolute;
+  top: 8px;
+  height: calc(100% - 16px);
+  border-radius: 12px;
+  background: linear-gradient(180deg, var(--blue-bg) 0%, transparent 100%);
+  transition:
+    transform 0.32s cubic-bezier(0.34, 1.18, 0.64, 1),
+    width 0.32s cubic-bezier(0.34, 1.18, 0.64, 1),
+    opacity 0.2s ease;
+  pointer-events: none;
+  z-index: 0;
+}
+
+body.dark .bottom-nav__indicator {
+  background: linear-gradient(180deg, rgba(37, 99, 235, 0.20) 0%, transparent 100%);
+}
+
+/* Botones de cada tab */
+.bottom-nav .nav-btn {
+  flex: 1;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: var(--text2);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  padding: 6px 2px 8px;
+  font-family: inherit;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: color 0.2s ease, transform 0.15s ease;
+  min-width: 0;
+}
+
+.bottom-nav .nav-btn:active {
+  transform: scale(0.92);
+}
+
+.bottom-nav .nav-btn.active {
+  color: var(--blue);
+}
+
+.bottom-nav .nav-icon-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  transition: transform 0.32s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.bottom-nav .nav-btn.active .nav-icon-wrap {
+  transform: translateY(-2px) scale(1.08);
+}
+
+.bottom-nav .nav-icon {
+  font-size: 22px;
+  line-height: 1;
+  filter: grayscale(0.4) opacity(0.78);
+  transition: filter 0.25s ease;
+}
+
+.bottom-nav .nav-btn.active .nav-icon {
+  filter: grayscale(0) opacity(1) drop-shadow(0 2px 6px rgba(37, 99, 235, 0.35));
+}
+
+.bottom-nav .nav-label {
+  font-size: 10px;
+  line-height: 1.1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+/* Badge (cuenta de deudas pendientes, stock crítico, etc.) */
+.bottom-nav .nav-badge {
+  position: absolute;
+  top: -3px;
+  right: -7px;
+  background: var(--danger);
+  color: #fff;
+  font-size: 9px;
+  font-weight: 800;
+  border-radius: 99px;
+  padding: 2px 5px;
+  min-width: 17px;
+  height: 17px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  box-shadow:
+    0 0 0 2px var(--surface),
+    0 2px 6px rgba(214, 48, 49, 0.4);
+  animation: badgePop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Variante naranja para stock crítico */
+.bottom-nav .nav-badge--warn {
+  background: var(--warn);
+  box-shadow:
+    0 0 0 2px var(--surface),
+    0 2px 6px rgba(224, 123, 32, 0.45);
+}
+
+@keyframes badgePop {
+  0%   { transform: scale(0);   opacity: 0; }
+  60%  { transform: scale(1.2); opacity: 1; }
+  100% { transform: scale(1);   opacity: 1; }
+}
+
+/* Empujar el contenido de las páginas para que el último contenido no quede
+   tapado por la nav. IonRouterOutlet ya tiene su propio handling, pero
+   reforzamos por si alguna página usa padding-bottom corto. */
+ion-router-outlet#main {
+  padding-bottom: var(--nav-h, 62px);
+  padding-bottom: calc(var(--nav-h, 62px) + env(safe-area-inset-bottom, 0));
+}
+
+/* En tablets grandes (>= 768px) la barra queda centrada con bordes redondeados,
+   estilo "floating" — mucho más prolijo cuando es kiosco con tablet horizontal */
+@media (min-width: 768px) {
+  .bottom-nav {
+    padding: 0 16px;
+    padding-bottom: calc(env(safe-area-inset-bottom, 0) + 12px);
+  }
+
+  .bottom-nav__inner {
+    max-width: 640px;
+    border-radius: 18px;
+    border: 1px solid var(--border);
+    box-shadow:
+      0 8px 32px -8px rgba(0, 0, 0, 0.18),
+      0 2px 8px -2px rgba(0, 0, 0, 0.08);
+  }
+
+  body.dark .bottom-nav__inner {
+    box-shadow:
+      0 8px 32px -8px rgba(0, 0, 0, 0.5),
+      0 2px 8px -2px rgba(0, 0, 0, 0.3);
+  }
+
+  .bottom-nav .nav-icon {
+    font-size: 24px;
+  }
+
+  .bottom-nav .nav-label {
+    font-size: 11px;
+  }
+}
+
+/* Pantallas muy chicas (< 360px) reducimos un toque */
+@media (max-width: 359px) {
+  .bottom-nav .nav-icon { font-size: 20px; }
+  .bottom-nav .nav-label { font-size: 9px; }
+  .bottom-nav .nav-btn { padding: 4px 1px 6px; }
+}
